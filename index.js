@@ -12,7 +12,7 @@ let world = {
     users: {}
 }
 let worldTick = 0;
-
+const initialPos = [25, 25];
 
 app.get('/', (req, res) => {
     res.sendFile('./public/index.html')
@@ -20,9 +20,23 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
     console.log(socket.id, 'connected.');
+
     world.users[socket.id] = {
-        x: 25,
-        y: 25
+        x: 0,
+        y: 0
+    }
+
+    let currentPos = [...initialPos];
+    while(true) {
+        if(world.grid[currentPos[1]][currentPos[0]] === 0) {
+            world.users[socket.id].x = currentPos[0];
+            world.users[socket.id].y = currentPos[1];
+            break;
+        }
+        else{
+            // Note to change here later vvvvvv
+            currentPos[0]++;
+        }
     }
 
     socket.on('playerRight', ()=>{
@@ -51,6 +65,12 @@ io.on('connection', (socket) => {
             world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
             world.users[socket.id].y--;
         }
+    });
+
+    socket.on('disconnect', () => {
+        world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
+        delete world.users[socket.id];
+        console.log(socket.id, 'disconnected.');
     });
 });
 
