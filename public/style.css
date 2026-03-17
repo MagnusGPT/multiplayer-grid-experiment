@@ -1,0 +1,25 @@
+#grid-container {
+  display: grid;
+  /* 50 columns, each taking up exactly 1/50th of the space */
+  grid-template-columns: repeat(50, 1fr); 
+  
+  /* Set a max-width so it doesn't span the entire screen */
+  width: 90vw; 
+  max-width: 600px; 
+  
+  /* Centers the grid on the page */
+  margin: 20px auto; 
+  border: 2px solid #333;
+  background-color: #f0f0f0;
+}
+
+.cell {
+  /* This is the secret sauce: keeps them square */
+  aspect-ratio: 1 / 1; 
+  border: 0.5px solid rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.active {
+  background-color: #2ecc71; /* A nice green for active cells */
+}
