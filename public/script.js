@@ -1,38 +1,60 @@
 const socket = io();
 
-const container = document.getElementById('grid-container');
 
-function renderGrid(data) {
-  // Clear the container first
-  container.innerHTML = ''; 
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const gridSize = 50;
+const cellSize = canvas.width / gridSize;
+const coordinates = document.getElementById('coordinates');
 
-  // Loop through rows
-  for (let r = 49; r >= 0; r--) {
-    // Loop through columns
-    for (let c = 0; c < 50; c++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-
-      // If the array value is 1, make it look "active"
-      if (data[r][c] !== 0) {
-        cell.classList.add('active');
-        cell.style.backgroundColor = data[r][c].color;
+function renderGrid(world) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // 2. Loop through the 2D array
+  for (let r = gridSize - 1; r >= 0; r--) {
+      for (let c = 0; c < gridSize; c++) {
+          const cellData = world.grid[r][c];
+          if (cellData !== 0) {
+              // 3. Set the "paint" color to the hex code in the array
+              ctx.fillStyle = cellData.color;
+              
+              // 4. Draw a rectangle: ctx.fillRect(x, y, width, height)
+              // Note: We multiply index by cellSize to get pixel position
+              // We use (gridSize - 1 - r) if you want to keep your bottom-up logic
+              ctx.fillRect(c * cellSize, (gridSize - 1 - r) * cellSize, cellSize, cellSize);
+          }
       }
-
-      container.appendChild(cell);
-    }
   }
 }
 
+const keys = {
+  w: false,
+  a: false,
+  s: false,
+  d: false
+};
+
 window.addEventListener('keydown', (event) => {
     const key = event.key.toLowerCase();
+    
+    if (key in keys) keys[key] = true;
+});
 
-    if (key === 'w') socket.emit("playerUp");
-    if (key === 'a') socket.emit("playerLeft");
-    if (key === 's') socket.emit("playerDown");
-    if (key === 'd') socket.emit("playerRight");
+window.addEventListener('keyup', (event) => {
+  const key = event.key.toLowerCase();
+
+  if (key in keys) keys[key] = false;
+});
+
+socket.on('tick', ()=>{
+  if(keys.w) socket.emit('playerUp');
+  if(keys.a) socket.emit('playerLeft');
+  if(keys.s) socket.emit('playerDown');
+  if(keys.d) socket.emit('playerRight');
 });
 
 socket.on("updateWorld", (world) => {
-    renderGrid(world.grid);
+    renderGrid(world);
+
+    console.log(world);
+    coordinates.textContent = `${world.users[socket.id].x}, ${world.users[socket.id].y}`;
 });

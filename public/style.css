@@ -1,16 +1,10 @@
-#grid-container {
-  display: grid;
-  /* 50 columns, each taking up exactly 1/50th of the space */
-  grid-template-columns: repeat(50, 1fr); 
-  
-  /* Set a max-width so it doesn't span the entire screen */
-  width: 90vw; 
-  max-width: 600px; 
-  
-  /* Centers the grid on the page */
-  margin: 20px auto; 
-  border: 2px solid #333;
-  background-color: #f0f0f0;
+#gameCanvas {
+    border: 2px solid #333;
+    display: block;
+    margin: 20px auto;
+    background-color: #f0f0f0;
+    /* Optional: Keep it crisp on high-res screens */
+    image-rendering: pixelated;
 }
 
 .cell {

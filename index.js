@@ -50,28 +50,28 @@ io.on('connection', (socket) => {
     }
 
     socket.on('playerRight', ()=>{
-        if (world.users[socket.id].x < 50) {
+        if (world.users[socket.id].x < 49 && world.grid[world.users[socket.id].y][world.users[socket.id].x + 1] === 0) {
             world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
             world.users[socket.id].x++;
         }
     });
 
     socket.on('playerLeft', ()=>{
-        if (world.users[socket.id].x > 0) {
+        if (world.users[socket.id].x > 0 && world.grid[world.users[socket.id].y][world.users[socket.id].x - 1] === 0) {
             world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
             world.users[socket.id].x--;
         }
     });
 
     socket.on('playerUp', ()=>{
-        if (world.users[socket.id].y < 50) {
+        if (world.users[socket.id].y < 49 && world.grid[world.users[socket.id].y + 1][world.users[socket.id].x] === 0) {
             world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
             world.users[socket.id].y++;
         }
     });
 
     socket.on('playerDown', ()=>{
-        if (world.users[socket.id].y > 0) {
+        if (world.users[socket.id].y > 0 && world.grid[world.users[socket.id].y - 1][world.users[socket.id].x] === 0) {
             world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
             world.users[socket.id].y--;
         }
