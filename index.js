@@ -7,6 +7,15 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
 let world = {
     grid: Array.from({ length: 50 }, () => Array(50).fill(0)), //initial array
     users: {}
@@ -23,7 +32,8 @@ io.on('connection', (socket) => {
 
     world.users[socket.id] = {
         x: 0,
-        y: 0
+        y: 0,
+        color: getRandomColor()
     }
 
     let currentPos = [...initialPos];
@@ -77,7 +87,7 @@ io.on('connection', (socket) => {
 function setPlayerPositions() {
     if (world.users.length !== 0) {
         for (let users in world.users) {
-            world.grid[world.users[users].y][world.users[users].x] = users;
+            world.grid[world.users[users].y][world.users[users].x] = world.users[users];
         }
     }
 }

@@ -16,6 +16,7 @@ function renderGrid(data) {
       // If the array value is 1, make it look "active"
       if (data[r][c] !== 0) {
         cell.classList.add('active');
+        cell.style.backgroundColor = data[r][c].color;
       }
 
       container.appendChild(cell);
