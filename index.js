@@ -16,8 +16,10 @@ function getRandomColor() {
     return color;
 }
 
+// This will break a lot of things. Fix it.
+const grid = Array.from({ length: 50 }, () => Array(50).fill(0))
+
 let world = {
-    grid: Array.from({ length: 50 }, () => Array(50).fill(0)), //initial array
     users: {}
 }
 let worldTick = 0;
@@ -37,17 +39,8 @@ io.on('connection', (socket) => {
     }
 
     let currentPos = [...initialPos];
-    while(true) {
-        if(world.grid[currentPos[1]][currentPos[0]] === 0) {
-            world.users[socket.id].x = currentPos[0];
-            world.users[socket.id].y = currentPos[1];
-            break;
-        }
-        else{
-            // Note to change here later vvvvvv
-            currentPos[0]++;
-        }
-    }
+    
+    // Add the player setter here.
 
     socket.on('playerRight', ()=>{
         if (world.users[socket.id].x < 49 && world.grid[world.users[socket.id].y][world.users[socket.id].x + 1] === 0) {
@@ -84,6 +77,8 @@ io.on('connection', (socket) => {
     });
 });
 
+
+// Dumped.
 function setPlayerPositions() {
     if (world.users.length !== 0) {
         for (let users in world.users) {
@@ -92,9 +87,12 @@ function setPlayerPositions() {
     }
 }
 
+function isColliding(user) {
+    
+}
+
 setInterval(() => {
     worldTick++;
-    setPlayerPositions();
     io.emit("tick", worldTick);
     io.emit("updateWorld", world);
 }, 50);
