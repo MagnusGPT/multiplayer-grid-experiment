@@ -16,10 +16,8 @@ function getRandomColor() {
     return color;
 }
 
-// This will break a lot of things. Fix it.
-const grid = Array.from({ length: 50 }, () => Array(50).fill(0))
 
-let world = {
+const world = {
     users: {}
 }
 let worldTick = 0;
@@ -33,68 +31,86 @@ io.on('connection', (socket) => {
     console.log(socket.id, 'connected.');
 
     world.users[socket.id] = {
-        x: 0,
-        y: 0,
+        x: 25,
+        y: 25,
         color: getRandomColor()
     }
 
     let currentPos = [...initialPos];
     
     // Add the player setter here.
+    while(true) {
+        if(isOccupied(...currentPos)) {
+            currentPos[0]++;
+        }
+        else {
+            const u = world.users[socket.id];
+            u.x = currentPos[0];
+            u.y = currentPos[1];
+            break;
+        }
+    }
 
     socket.on('playerRight', ()=>{
-        if (world.users[socket.id].x < 49 && world.grid[world.users[socket.id].y][world.users[socket.id].x + 1] === 0) {
-            world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
-            world.users[socket.id].x++;
+        const u = world.users[socket.id];
+        if (u.x < 49 && !isOccupied(u.x + 1, u.y)) {
+            u.x++;
         }
     });
 
     socket.on('playerLeft', ()=>{
-        if (world.users[socket.id].x > 0 && world.grid[world.users[socket.id].y][world.users[socket.id].x - 1] === 0) {
-            world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
-            world.users[socket.id].x--;
+        const u = world.users[socket.id];
+        if (u.x > 0 && !isOccupied(u.x - 1, u.y)) {
+            u.x--;
         }
     });
 
     socket.on('playerUp', ()=>{
-        if (world.users[socket.id].y < 49 && world.grid[world.users[socket.id].y + 1][world.users[socket.id].x] === 0) {
-            world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
-            world.users[socket.id].y++;
+        const u = world.users[socket.id];
+        if (u.y < 49 && !isOccupied(u.x, u.y + 1)) {
+            u.y++;
         }
     });
 
     socket.on('playerDown', ()=>{
-        if (world.users[socket.id].y > 0 && world.grid[world.users[socket.id].y - 1][world.users[socket.id].x] === 0) {
-            world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
-            world.users[socket.id].y--;
+        const u = world.users[socket.id];
+
+        if (u.y > 0 && !isOccupied(u.x, u.y - 1)) {
+            u.y--;
         }
     });
 
     socket.on('disconnect', () => {
-        world.grid[world.users[socket.id].y][world.users[socket.id].x] = 0;
         delete world.users[socket.id];
         console.log(socket.id, 'disconnected.');
     });
 });
 
+function updateGrid() {
+    const grid = Array.from({ length: 50 }, () => Array(50).fill(0));
 
-// Dumped.
-function setPlayerPositions() {
-    if (world.users.length !== 0) {
-        for (let users in world.users) {
-            world.grid[world.users[users].y][world.users[users].x] = world.users[users];
-        }
+    for(let user in world.users) {
+        const u = world.users[user];
+        grid[u.y][u.x] = u;
     }
+
+    return grid;
 }
 
-function isColliding(user) {
-    
+function isOccupied(x, y) {
+    for (let id in world.users) {
+        const u = world.users[id];
+        if(u.x === x && u.y === y) return true;
+    }
+    return false;
 }
 
 setInterval(() => {
     worldTick++;
-    io.emit("tick", worldTick);
-    io.emit("updateWorld", world);
+    io.emit("tick", {
+        tick: worldTick,
+        grid: updateGrid()
+    });
 }, 50);
 
 server.listen(3000, () => {
